@@ -1,0 +1,24 @@
+# IDEA配置
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# Maven
+target/
+!mvnw
+!mvnw.cmd
+
+# 日志、缓存
+*.log
+*.tmp
+.DS_Store
+
+# 数据库配置、本地环境文件
+application-dev.yml
+application-local.yml
+*.properties.local
+
+# 编译文件
+*.class
