@@ -39,6 +39,7 @@ public class WebConfig implements WebMvcConfigurer {
                         "/api/review/list/**",
                         "/api/seckill/list",
                         "/api/seckill/detail/**",
+                        "/api/internal/**",
                         "/admin/auth/**"
                 );
     }

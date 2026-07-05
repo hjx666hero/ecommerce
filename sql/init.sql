@@ -269,6 +269,7 @@ CREATE TABLE `user_coupon` (
     `use_time` DATETIME DEFAULT NULL COMMENT '使用时间',
     `order_no` VARCHAR(32) DEFAULT NULL COMMENT '使用的订单号',
     `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '领取时间',
+    `deleted` TINYINT DEFAULT 0 COMMENT '逻辑删除 0未删除 1已删除',
     PRIMARY KEY (`id`),
     KEY `idx_user_id` (`user_id`),
     KEY `idx_coupon_id` (`coupon_id`)

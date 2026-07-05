@@ -171,10 +171,11 @@ public class OrderServiceImpl implements OrderService {
             item.setTotalAmount(sku.getPrice().multiply(BigDecimal.valueOf(cart.getQuantity())));
             orderItems.add(item);
 
-            // 扣减库存
-            sku.setStock(sku.getStock() - cart.getQuantity());
-            sku.setLockedStock((sku.getLockedStock() != null ? sku.getLockedStock() : 0) + cart.getQuantity());
-            skuMapper.updateById(sku);
+            // 扣减库存（CAS原子操作）
+            int affected = skuMapper.decreaseStock(sku.getId(), cart.getQuantity());
+            if (affected == 0) {
+                throw new BusinessException(ResultCode.STOCK_NOT_ENOUGH);
+            }
 
             // 更新销量
             if (spu != null) {
@@ -249,16 +250,11 @@ public class OrderServiceImpl implements OrderService {
         order.setCancelTime(LocalDateTime.now());
         orderMapper.updateById(order);
 
-        // 库存回滚
+        // 库存回滚（CAS原子操作）
         List<OrderItem> items = orderItemMapper.selectList(new LambdaQueryWrapper<OrderItem>()
                 .eq(OrderItem::getOrderId, order.getId()));
         for (OrderItem item : items) {
-            Sku sku = skuMapper.selectById(item.getSkuId());
-            if (sku != null) {
-                sku.setStock(sku.getStock() + item.getQuantity());
-                sku.setLockedStock(sku.getLockedStock() - item.getQuantity());
-                skuMapper.updateById(sku);
-            }
+            skuMapper.rollbackStock(item.getSkuId(), item.getQuantity());
         }
 
         // 优惠券返还
@@ -299,16 +295,18 @@ public class OrderServiceImpl implements OrderService {
         order.setStatus(OrderStatus.REFUNDED);
         orderMapper.updateById(order);
 
-        // 库存回滚
+        // 库存回滚（CAS原子操作）
         List<OrderItem> items = orderItemMapper.selectList(new LambdaQueryWrapper<OrderItem>()
                 .eq(OrderItem::getOrderId, order.getId()));
         for (OrderItem item : items) {
-            Sku sku = skuMapper.selectById(item.getSkuId());
-            if (sku != null) {
-                sku.setStock(sku.getStock() + item.getQuantity());
-                sku.setLockedStock(sku.getLockedStock() - item.getQuantity());
-                skuMapper.updateById(sku);
-            }
+            skuMapper.rollbackStock(item.getSkuId(), item.getQuantity());
+        }
+
+        // 优惠券返还
+        if (order.getCouponId() != null) {
+            userCouponMapper.update(null, new LambdaUpdateWrapper<UserCoupon>().eq(UserCoupon::getUserId, userId)
+                    .eq(UserCoupon::getCouponId, order.getCouponId()).eq(UserCoupon::getStatus, 1)
+                    .set(UserCoupon::getStatus, 0).set(UserCoupon::getUseTime, null).set(UserCoupon::getOrderNo, null));
         }
     }
 
@@ -355,6 +353,22 @@ public class OrderServiceImpl implements OrderService {
             throw new BusinessException(ResultCode.ORDER_NOT_EXIST);
         }
         applyRefund(userId, order.getId());
+    }
+
+    @Override
+    @Transactional
+    public void deleteOrder(Long userId, Long orderId) {
+        Order order = orderMapper.selectOne(new LambdaQueryWrapper<Order>()
+                .eq(Order::getId, orderId).eq(Order::getUserId, userId));
+        if (order == null) {
+            throw new BusinessException(ResultCode.ORDER_NOT_EXIST);
+        }
+        // 只允许删除已取消或已完成的订单
+        if (order.getStatus() != OrderStatus.CANCELLED && order.getStatus() != OrderStatus.COMPLETED) {
+            throw new BusinessException(ResultCode.ORDER_CANNOT_DELETE);
+        }
+        orderMapper.deleteById(orderId);
+        orderItemMapper.delete(new LambdaQueryWrapper<OrderItem>().eq(OrderItem::getOrderId, orderId));
     }
 
     private String generateOrderNo() {

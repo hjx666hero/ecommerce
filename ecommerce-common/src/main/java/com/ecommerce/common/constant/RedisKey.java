@@ -41,5 +41,29 @@ public class RedisKey {
     /** 秒杀下单队列 */
     public static final String SECKILL_ORDER_QUEUE = "seckill:order:queue";
 
+    /** 分类树缓存 key: category:tree */
+    public static final String CATEGORY_TREE = "category:tree";
+
+    /** 分类树缓存过期时间 1小时 */
+    public static final long CATEGORY_TREE_EXPIRE = 3600;
+
+    /** 购物车数量上限 */
+    public static final int CART_MAX_COUNT = 100;
+
+    /** 首页数据缓存 key: home:data */
+    public static final String HOME_DATA = "home:data";
+
+    /** 首页数据缓存过期时间 10分钟 */
+    public static final long HOME_DATA_EXPIRE = 600;
+
+    /** 热搜词缓存 key: search:hot */
+    public static final String SEARCH_HOT = "search:hot";
+
+    /** 热搜词缓存过期时间 30分钟 */
+    public static final long SEARCH_HOT_EXPIRE = 1800;
+
+    /** 搜索历史 key: search:history:{userId} */
+    public static final String SEARCH_HISTORY = "search:history:";
+
     private RedisKey() {}
 }

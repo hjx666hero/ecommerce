@@ -1,0 +1,296 @@
+/* ===== 拼夕夕 全局主题 ===== */
+:root {
+  --primary: #FF4757;
+  --primary-light: #FF6B81;
+  --primary-dark: #E0333F;
+  --primary-bg: #FFF0F2;
+  --accent: #FC6621;
+  --accent-light: #FF8C5A;
+  --success: #2ED573;
+  --warning: #FFA502;
+  --danger: #FF4757;
+  --info: #3742FA;
+  --text-primary: #1a1a2e;
+  --text-regular: #333;
+  --text-secondary: #666;
+  --text-placeholder: #999;
+  --text-disabled: #c0c4cc;
+  --border-base: #e8e8e8;
+  --border-light: #f0f0f0;
+  --bg-page: #F4F5F7;
+  --bg-white: #ffffff;
+  --bg-card: #ffffff;
+  --shadow-sm: 0 1px 4px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.06);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.08);
+  --shadow-xl: 0 12px 48px rgba(0,0,0,0.1);
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body {
+  background-color: var(--bg-page) !important;
+}
+
+/* ===== Element Plus 全局覆盖 ===== */
+.el-button--primary {
+  --el-button-bg-color: var(--primary);
+  --el-button-border-color: var(--primary);
+  --el-button-hover-bg-color: var(--primary-light);
+  --el-button-hover-border-color: var(--primary-light);
+  --el-button-active-bg-color: var(--primary-dark);
+  --el-button-active-border-color: var(--primary-dark);
+  border-radius: var(--radius-sm);
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+.el-button--danger {
+  --el-button-bg-color: var(--primary);
+  --el-button-border-color: var(--primary);
+  --el-button-hover-bg-color: var(--primary-light);
+  --el-button-hover-border-color: var(--primary-light);
+  --el-button-active-bg-color: var(--primary-dark);
+  --el-button-active-border-color: var(--primary-dark);
+}
+
+.el-button--default {
+  border-radius: var(--radius-sm);
+}
+
+.el-input__wrapper, .el-textarea__inner {
+  border-radius: var(--radius-sm) !important;
+  box-shadow: 0 0 0 1px var(--border-base) inset !important;
+  transition: box-shadow var(--transition);
+}
+
+.el-input__wrapper:hover, .el-textarea__inner:hover {
+  box-shadow: 0 0 0 1px var(--primary-light) inset !important;
+}
+
+.el-input__wrapper.is-focus, .el-textarea__inner:focus {
+  box-shadow: 0 0 0 1px var(--primary) inset !important;
+}
+
+.el-select .el-input__wrapper {
+  border-radius: var(--radius-sm) !important;
+}
+
+.el-card {
+  border-radius: var(--radius-md) !important;
+  border: none !important;
+  box-shadow: var(--shadow-sm) !important;
+  transition: box-shadow var(--transition);
+}
+
+.el-card:hover {
+  box-shadow: var(--shadow-md) !important;
+}
+
+.el-tabs__nav-wrap::after {
+  height: 1px;
+  background-color: var(--border-light);
+}
+
+.el-tabs__item {
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.el-tabs__item.is-active {
+  color: var(--primary);
+}
+
+.el-tabs__active-bar {
+  background-color: var(--primary);
+  height: 3px;
+  border-radius: 2px;
+}
+
+.el-tag {
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.el-pagination {
+  --el-pagination-button-bg-color: var(--bg-white);
+  --el-pagination-hover-color: var(--primary);
+}
+.el-pagination .is-active {
+  background-color: var(--primary) !important;
+  border-color: var(--primary) !important;
+}
+
+.el-dialog {
+  border-radius: var(--radius-lg) !important;
+  box-shadow: var(--shadow-xl) !important;
+}
+
+.el-dialog__header {
+  padding: 20px 24px 0;
+}
+
+.el-dialog__body {
+  padding: 20px 24px;
+}
+
+.el-menu {
+  border-right: none !important;
+}
+
+.el-empty__description {
+  color: var(--text-placeholder);
+}
+
+.el-badge__content {
+  background-color: var(--primary);
+}
+
+/* ===== 公共动画 ===== */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.fade-in-up { animation: fadeInUp 0.4s ease-out; }
+.fade-in { animation: fadeIn 0.3s ease-out; }
+
+/* ===== 公共工具类 ===== */
+.section-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.section-title::before {
+  content: '';
+  width: 4px;
+  height: 22px;
+  background: linear-gradient(180deg, var(--primary), var(--accent));
+  border-radius: 2px;
+}
+
+.price-red {
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.price-original {
+  color: var(--text-placeholder);
+  text-decoration: line-through;
+}
+
+.gradient-btn {
+  background: linear-gradient(135deg, var(--primary), var(--primary-light)) !important;
+  border: none !important;
+  color: #fff !important;
+  font-weight: 600 !important;
+  letter-spacing: 1px !important;
+  transition: all var(--transition) !important;
+}
+
+.gradient-btn:hover {
+  background: linear-gradient(135deg, var(--primary-dark), var(--primary)) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 71, 87, 0.4) !important;
+}
+
+.gradient-btn:active {
+  transform: translateY(0);
+}
+
+/* 页面通用标题 */
+.page-hero {
+  background: linear-gradient(135deg, #FF4757 0%, #FC6621 100%);
+  border-radius: var(--radius-lg);
+  padding: 40px 48px;
+  margin-bottom: 24px;
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+}
+
+.page-hero::after {
+  content: '';
+  position: absolute;
+  right: -60px;
+  top: -60px;
+  width: 200px;
+  height: 200px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 50%;
+}
+
+.page-hero::before {
+  content: '';
+  position: absolute;
+  right: 80px;
+  bottom: -40px;
+  width: 120px;
+  height: 120px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 50%;
+}
+
+.page-hero h2 {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 6px;
+  position: relative;
+  z-index: 1;
+}
+
+.page-hero p {
+  font-size: 14px;
+  opacity: 0.85;
+  position: relative;
+  z-index: 1;
+}
+
+/* 商品网格公共样式 */
+.product-grid-modern {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+/* 响应式工具类 */
+.text-ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.text-ellipsis-2 {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}

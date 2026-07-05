@@ -19,10 +19,10 @@ public class LoginInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         String token = extractToken(request);
         if (token == null || !jwtUtil.validateToken(token)) {
-            response.setStatus(401);
+            response.setStatus(200);
             response.setContentType("application/json;charset=UTF-8");
             try {
-                response.getWriter().write("{\"code\":401,\"message\":\"未登录或Token已过期\",\"timestamp\":" + System.currentTimeMillis() + "}");
+                response.getWriter().write("{\"code\":401,\"message\":\"请先登录\",\"timestamp\":" + System.currentTimeMillis() + "}");
             } catch (Exception ignored) {
             }
             return false;

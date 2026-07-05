@@ -8,8 +8,8 @@
     <artifactId>ecommerce</artifactId>
     <version>1.0.0</version>
     <packaging>pom</packaging>
-    <name>ecommerce</name>
-    <description>电商后端Spring Boot项目</description>
+    <name>拼夕夕</name>
+    <description>拼夕夕 - 全栈电商平台（Spring Boot 3 + Vue 3）</description>
 
     <modules>
         <module>ecommerce-common</module>
@@ -115,6 +115,13 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>${lombok.version}</version>
+        </dependency>
+        <!-- 开发模式热更新依赖，生产模式打包时自动排除 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+            <scope>runtime</scope>
+            <optional>true</optional>
         </dependency>
     </dependencies>
 

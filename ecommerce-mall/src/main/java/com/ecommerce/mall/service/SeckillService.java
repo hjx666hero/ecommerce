@@ -8,4 +8,5 @@ public interface SeckillService {
     Page<SeckillVO> getSeckillList(Integer page, Integer size);
     SeckillVO getSeckillDetail(Long activityId);
     String createSeckillOrder(Long userId, SeckillOrderDTO seckillOrderDTO);
+    void preheatSeckillStock();
 }

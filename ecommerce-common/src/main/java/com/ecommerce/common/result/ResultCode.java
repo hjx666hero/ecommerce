@@ -71,7 +71,8 @@ public enum ResultCode {
     ADMIN_DISABLED(8003, "管理员已被禁用"),
 
     // 购物车 9xxx
-    CART_ITEM_NOT_EXIST(9001, "购物车商品不存在");
+    CART_ITEM_NOT_EXIST(9001, "购物车商品不存在"),
+    ORDER_CANNOT_DELETE(9002, "订单无法删除");
 
     private final int code;
     private final String message;

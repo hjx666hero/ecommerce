@@ -22,3 +22,18 @@ application-local.yml
 
 # 编译文件
 *.class
+
+# 前端项目
+node_modules/
+dist/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.env
+.env.local
+.env.*.local
+
+# 操作系统文件
+.DS_Store
+Thumbs.db

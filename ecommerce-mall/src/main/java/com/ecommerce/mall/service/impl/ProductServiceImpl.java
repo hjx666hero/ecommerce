@@ -2,21 +2,26 @@ package com.ecommerce.mall.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.ecommerce.common.constant.RedisKey;
 import com.ecommerce.common.exception.BusinessException;
 import com.ecommerce.common.result.ResultCode;
+import com.ecommerce.common.util.RedisUtil;
 import com.ecommerce.mall.entity.*;
 import com.ecommerce.mall.mapper.*;
 import com.ecommerce.mall.service.ProductService;
 import com.ecommerce.mall.vo.*;
 import com.ecommerce.mall.vo.SkuVO;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ProductServiceImpl implements ProductService {
@@ -28,9 +33,33 @@ public class ProductServiceImpl implements ProductService {
     private final BrandMapper brandMapper;
     private final AnnouncementMapper announcementMapper;
     private final UserFavoriteMapper userFavoriteMapper;
+    private final RedisUtil redisUtil;
 
     @Override
     public HomeVO getHome() {
+        // 优先从Redis缓存获取（Redis故障时回退到数据库）
+        try {
+            HomeVO cached = redisUtil.get(RedisKey.HOME_DATA, HomeVO.class);
+            if (cached != null) {
+                return cached;
+            }
+        } catch (Exception e) {
+            log.warn("Redis获取首页缓存失败，回退到数据库查询: {}", e.getMessage());
+        }
+
+        HomeVO homeVO = getHomeFromDB();
+
+        // 写入Redis缓存（Redis故障时跳过）
+        try {
+            redisUtil.set(RedisKey.HOME_DATA, homeVO, RedisKey.HOME_DATA_EXPIRE, TimeUnit.SECONDS);
+        } catch (Exception e) {
+            log.warn("Redis写入首页缓存失败: {}", e.getMessage());
+        }
+
+        return homeVO;
+    }
+
+    private HomeVO getHomeFromDB() {
         HomeVO homeVO = new HomeVO();
 
         // 轮播图
@@ -87,41 +116,34 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public List<CategoryVO> getCategoryTree() {
+        // 优先从Redis缓存获取（Redis故障时回退到数据库）
+        try {
+            Object cached = redisUtil.get(RedisKey.CATEGORY_TREE);
+            if (cached instanceof List) {
+                return (List<CategoryVO>) cached;
+            }
+        } catch (Exception e) {
+            log.warn("Redis获取分类树缓存失败，回退到数据库查询: {}", e.getMessage());
+        }
+
+        List<CategoryVO> tree = buildCategoryTreeFromDB();
+
+        // 写入Redis缓存（Redis故障时跳过）
+        try {
+            redisUtil.set(RedisKey.CATEGORY_TREE, tree, RedisKey.CATEGORY_TREE_EXPIRE, TimeUnit.SECONDS);
+        } catch (Exception e) {
+            log.warn("Redis写入分类树缓存失败: {}", e.getMessage());
+        }
+
+        return tree;
+    }
+
+    private List<CategoryVO> buildCategoryTreeFromDB() {
         List<Category> allCategories = categoryMapper.selectList(new LambdaQueryWrapper<Category>()
                 .eq(Category::getStatus, 1)
                 .orderByAsc(Category::getSortOrder));
-        Map<Long, List<CategoryVO>> parentMap = new HashMap<>();
-        List<CategoryVO> roots = new ArrayList<>();
-        for (Category category : allCategories) {
-            CategoryVO vo = new CategoryVO();
-            vo.setId(category.getId());
-            vo.setParentId(category.getParentId());
-            vo.setName(category.getName());
-            vo.setIcon(category.getIcon());
-            vo.setSortOrder(category.getSortOrder());
-            vo.setChildren(new ArrayList<>());
-            if (category.getParentId() == 0) {
-                roots.add(vo);
-            }
-            parentMap.computeIfAbsent(category.getParentId(), k -> new ArrayList<>()).add(vo);
-        }
-        // 构建树
-        for (CategoryVO vo : allCategories.stream().map(c -> {
-            CategoryVO v = new CategoryVO();
-            v.setId(c.getId());
-            v.setParentId(c.getParentId());
-            v.setName(c.getName());
-            v.setIcon(c.getIcon());
-            v.setSortOrder(c.getSortOrder());
-            return v;
-        }).collect(Collectors.toList())) {
-            List<CategoryVO> children = parentMap.get(vo.getId());
-            if (children != null) {
-                vo.setChildren(children);
-            }
-        }
-        // 重建树
         List<CategoryVO> tree = new ArrayList<>();
         for (Category category : allCategories) {
             if (category.getParentId() == 0) {
@@ -135,6 +157,7 @@ public class ProductServiceImpl implements ProductService {
                 tree.add(vo);
             }
         }
+
         return tree;
     }
 
@@ -158,41 +181,22 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Page<ProductVO> getProductList(Integer page, Integer size, Long categoryId, String keyword,
                                           String priceMin, String priceMax, String sort) {
-        LambdaQueryWrapper<Spu> wrapper = new LambdaQueryWrapper<Spu>()
-                .eq(Spu::getStatus, 1);
-
+        // 收集分类ID（含子分类）
+        List<Long> categoryIds = null;
         if (categoryId != null) {
-            // 查询该分类及其所有子分类
-            List<Long> categoryIds = getAllChildCategoryIds(categoryId);
+            categoryIds = getAllChildCategoryIds(categoryId);
             categoryIds.add(categoryId);
-            wrapper.in(Spu::getCategoryId, categoryIds);
-        }
-        if (keyword != null && !keyword.isEmpty()) {
-            wrapper.like(Spu::getName, keyword);
         }
 
-        // 排序
-        if ("price_asc".equals(sort)) {
-            wrapper.orderByAsc(Spu::getId);
-        } else if ("price_desc".equals(sort)) {
-            wrapper.orderByDesc(Spu::getId);
-        } else if ("sales".equals(sort)) {
-            wrapper.orderByDesc(Spu::getSales);
-        } else {
-            wrapper.orderByDesc(Spu::getCreateTime);
-        }
+        // 价格区间转为BigDecimal
+        BigDecimal minPrice = (priceMin != null && !priceMin.isEmpty()) ? new BigDecimal(priceMin) : null;
+        BigDecimal maxPrice = (priceMax != null && !priceMax.isEmpty()) ? new BigDecimal(priceMax) : null;
 
-        Page<Spu> spuPage = spuMapper.selectPage(new Page<>(page, size), wrapper);
+        // 使用自定义SQL，在数据库层面完成价格排序+区间过滤，避免分页不准
+        Page<Spu> spuPage = spuMapper.selectPageWithPriceSort(
+                new Page<>(page, size), categoryIds, keyword, minPrice, maxPrice, sort);
+
         List<ProductVO> voList = toProductVOList(spuPage.getRecords());
-
-        // 价格区间过滤
-        if (priceMin != null || priceMax != null) {
-            BigDecimal min = priceMin != null ? new BigDecimal(priceMin) : BigDecimal.ZERO;
-            BigDecimal max = priceMax != null ? new BigDecimal(priceMax) : new BigDecimal("999999");
-            voList = voList.stream()
-                    .filter(vo -> vo.getMinPrice().compareTo(max) <= 0 && vo.getMaxPrice().compareTo(min) >= 0)
-                    .collect(Collectors.toList());
-        }
 
         Page<ProductVO> resultPage = new Page<>(spuPage.getCurrent(), spuPage.getSize(), spuPage.getTotal());
         resultPage.setRecords(voList);

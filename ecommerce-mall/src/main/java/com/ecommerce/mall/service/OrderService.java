@@ -15,4 +15,5 @@ public interface OrderService {
     void confirmReceiveByOrderNo(Long userId, String orderNo);
     void applyRefund(Long userId, Long orderId);
     void applyRefundByOrderNo(Long userId, String orderNo);
+    void deleteOrder(Long userId, Long orderId);
 }

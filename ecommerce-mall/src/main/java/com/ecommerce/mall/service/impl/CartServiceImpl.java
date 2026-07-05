@@ -2,6 +2,7 @@ package com.ecommerce.mall.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.ecommerce.common.constant.RedisKey;
 import com.ecommerce.common.exception.BusinessException;
 import com.ecommerce.common.result.ResultCode;
 import com.ecommerce.mall.entity.Cart;
@@ -31,6 +32,13 @@ public class CartServiceImpl implements CartService {
     @Override
     @Transactional
     public void addToCart(Long userId, Long skuId, Long productId, Integer quantity) {
+        // 校验购物车数量上限
+        long cartCount = cartMapper.selectCount(new LambdaQueryWrapper<Cart>()
+                .eq(Cart::getUserId, userId));
+        if (cartCount >= RedisKey.CART_MAX_COUNT) {
+            throw new BusinessException(ResultCode.CART_ITEM_NOT_EXIST.getCode(), "购物车已满，最多添加" + RedisKey.CART_MAX_COUNT + "件商品");
+        }
+
         // 如果skuId为null，通过productId（spuId）查找第一个有效SKU
         if (skuId == null) {
             if (productId == null) {
@@ -51,13 +59,28 @@ public class CartServiceImpl implements CartService {
         if (sku == null || sku.getStatus() == 0) {
             throw new BusinessException(ResultCode.SKU_NOT_EXIST);
         }
+
+        // 库存校验
+        if (sku.getStock() <= 0) {
+            throw new BusinessException(ResultCode.STOCK_NOT_ENOUGH);
+        }
+
         // 检查是否已存在
         Cart existCart = cartMapper.selectOne(new LambdaQueryWrapper<Cart>()
                 .eq(Cart::getUserId, userId).eq(Cart::getSkuId, skuId));
         if (existCart != null) {
-            existCart.setQuantity(existCart.getQuantity() + quantity);
+            int newQty = existCart.getQuantity() + quantity;
+            // 校验合并后数量不超过库存
+            if (newQty > sku.getStock()) {
+                throw new BusinessException(ResultCode.STOCK_NOT_ENOUGH);
+            }
+            existCart.setQuantity(newQty);
             cartMapper.updateById(existCart);
         } else {
+            // 校验数量不超过库存
+            if (quantity > sku.getStock()) {
+                throw new BusinessException(ResultCode.STOCK_NOT_ENOUGH);
+            }
             Cart cart = new Cart();
             cart.setUserId(userId);
             cart.setSkuId(skuId);
@@ -78,6 +101,11 @@ public class CartServiceImpl implements CartService {
         if (quantity <= 0) {
             cartMapper.deleteById(cartId);
         } else {
+            // 校验库存
+            Sku sku = skuMapper.selectById(cart.getSkuId());
+            if (sku == null || sku.getStock() < quantity) {
+                throw new BusinessException(ResultCode.STOCK_NOT_ENOUGH);
+            }
             cart.setQuantity(quantity);
             cartMapper.updateById(cart);
         }

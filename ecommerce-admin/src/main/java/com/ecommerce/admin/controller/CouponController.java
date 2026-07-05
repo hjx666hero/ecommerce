@@ -7,6 +7,9 @@ import com.ecommerce.mall.entity.Coupon;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/admin/coupon")
 @RequiredArgsConstructor
@@ -30,5 +33,14 @@ public class CouponController {
     public Result<Void> deleteCoupon(@PathVariable Long id) {
         adminCouponService.deleteCoupon(id);
         return Result.success();
+    }
+
+    /**
+     * 批量发放优惠券
+     */
+    @PostMapping("/{couponId}/distribute")
+    public Result<Integer> batchDistribute(@PathVariable Long couponId, @RequestBody(required = false) Map<String, List<Long>> body) {
+        List<Long> userIds = body != null ? body.get("userIds") : null;
+        return Result.success(adminCouponService.batchDistribute(couponId, userIds));
     }
 }

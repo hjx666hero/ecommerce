@@ -2,6 +2,8 @@ package com.ecommerce.admin.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.ecommerce.common.exception.BusinessException;
+import com.ecommerce.common.result.ResultCode;
 import com.ecommerce.mall.entity.*;
 import com.ecommerce.mall.mapper.*;
 import lombok.RequiredArgsConstructor;
@@ -84,7 +86,15 @@ public class AdminProductService {
         }
     }
 
+    @Transactional
     public void deleteSpu(Long spuId) {
+        Spu spu = spuMapper.selectById(spuId);
+        if (spu == null) {
+            throw new BusinessException(ResultCode.PRODUCT_NOT_EXIST);
+        }
+        // 级联删除关联的SKU
+        skuMapper.delete(new LambdaQueryWrapper<Sku>().eq(Sku::getSpuId, spuId));
+        // 删除SPU
         spuMapper.deleteById(spuId);
     }
 

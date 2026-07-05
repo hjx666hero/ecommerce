@@ -87,5 +87,9 @@ public class PayServiceImpl implements PayService {
             record.setRefundTime(LocalDateTime.now());
             payRecordMapper.updateById(record);
         }
+
+        // 同时更新订单状态为已退款
+        order.setStatus(OrderStatus.REFUNDED);
+        orderMapper.updateById(order);
     }
 }

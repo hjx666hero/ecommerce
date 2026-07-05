@@ -61,6 +61,39 @@ public class AuthServiceImpl implements AuthService {
         return buildLoginVO(user);
     }
 
+
+    @Override
+    public LoginVO loginBySms(String phone, String code) {
+        // 1. 校验验证码
+        String key = RedisKey.VERIFY_CODE + phone;
+        String storedCode = redisUtil.get(key, String.class);
+        if (storedCode == null) {
+            throw new BusinessException(ResultCode.VERIFY_CODE_EXPIRED);
+        }
+        if (!storedCode.equals(code)) {
+            throw new BusinessException(ResultCode.VERIFY_CODE_ERROR);
+        }
+
+        // 2. 根据手机号查询用户
+        User user = userMapper.selectOne(new LambdaQueryWrapper<User>().eq(User::getPhone, phone));
+        if (user == null) {
+            throw new BusinessException(ResultCode.USER_NOT_EXIST);
+        }
+        if (user.getStatus() == 0) {
+            throw new BusinessException(ResultCode.USER_ACCOUNT_DISABLED);
+        }
+
+        // 3. 更新最后登录时间
+        user.setLastLoginTime(LocalDateTime.now());
+        userMapper.updateById(user);
+
+        // 4. 删除已使用的验证码（防止重复使用）
+        redisUtil.delete(key);
+
+        // 5. 生成Token并返回
+        return buildLoginVO(user);
+    }
+
     @Override
     @Transactional
     public LoginVO register(RegisterDTO registerDTO) {

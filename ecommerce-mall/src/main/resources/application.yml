@@ -4,6 +4,9 @@ server:
 spring:
   application:
     name: ecommerce-mall
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: Asia/Shanghai
   datasource:
     url: jdbc:mysql://localhost:3306/ecommerce?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
     username: root
@@ -35,3 +38,7 @@ jwt:
   secret: ecommerce-secret-key-2024-jwt-token-key-must-be-long-enough
   access-token-expire: 7200
   refresh-token-expire: 604800
+
+agent:
+  service:
+    url: http://localhost:8000

@@ -79,9 +79,11 @@ public class CouponServiceImpl implements CouponService {
             if (count >= coupon.getPerLimit()) {
                 throw new BusinessException(ResultCode.COUPON_RECEIVED);
             }
-            // 扣减库存
-            coupon.setReceiveCount(coupon.getReceiveCount() + 1);
-            couponMapper.updateById(coupon);
+            // CAS原子扣减库存
+            int affected = couponMapper.incrReceiveCount(couponId);
+            if (affected == 0) {
+                throw new BusinessException(ResultCode.COUPON_EXHAUSTED);
+            }
             // 发放
             UserCoupon uc = new UserCoupon();
             uc.setUserId(userId);

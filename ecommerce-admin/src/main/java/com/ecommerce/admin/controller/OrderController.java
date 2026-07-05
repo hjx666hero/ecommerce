@@ -41,4 +41,9 @@ public class OrderController {
         adminOrderService.handleRefund(orderId);
         return Result.success();
     }
+
+    @GetMapping("/statistics")
+    public Result<Map<String, Object>> getOrderStatistics() {
+        return Result.success(adminOrderService.getOrderStatistics());
+    }
 }

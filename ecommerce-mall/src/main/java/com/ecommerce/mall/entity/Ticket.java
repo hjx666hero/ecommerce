@@ -1,0 +1,24 @@
+package com.ecommerce.mall.entity;
+
+import com.baomidou.mybatisplus.annotation.*;
+import lombok.Data;
+import java.time.LocalDateTime;
+
+@Data
+@TableName("ticket")
+public class Ticket {
+    @TableId(type = IdType.AUTO)
+    private Long id;
+    private Long userId;
+    private String title;
+    private String description;
+    private Integer status;  // 0待处理 1处理中 2已解决 3已关闭
+    private String reply;
+    private LocalDateTime replyTime;
+    @TableField(fill = FieldFill.INSERT)
+    private LocalDateTime createTime;
+    @TableField(fill = FieldFill.INSERT_UPDATE)
+    private LocalDateTime updateTime;
+    @TableLogic
+    private Integer deleted;
+}
