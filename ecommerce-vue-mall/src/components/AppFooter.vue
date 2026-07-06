@@ -14,7 +14,7 @@
               </linearGradient>
             </defs>
           </svg>
-          <span class="brand-name">拼夕夕</span>
+          <span class="brand-name">云创优品</span>
         </div>
         <p class="brand-desc">甄选全球好物，品质生活从这里开始</p>
         <div class="footer-social">
@@ -35,7 +35,7 @@
         <div class="footer-col">
           <h4>
             <svg class="col-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-            关于拼夕夕
+            关于云创优品
           </h4>
           <a href="#">品牌故事</a>
           <a href="#">隐私政策</a>
@@ -80,13 +80,13 @@
           <p class="phone">400-888-8888</p>
           <p>工作时间：9:00 - 21:00</p>
           <p>邮箱：service@youpin.com</p>
-          <p>地址：杭州市余杭区拼夕夕大厦</p>
+          <p>地址：杭州市余杭区云创优品大厦</p>
         </div>
       </div>
 
       <!-- 底部版权 -->
       <div class="footer-bottom">
-        <p>© 2024 拼夕夕 版权所有 | ICP备XXXXXXXX号 | 浙公网安备 XXXXXXXXXXXX号</p>
+        <p>© 2024 云创优品 版权所有 | ICP备XXXXXXXX号 | 浙公网安备 XXXXXXXXXXXX号</p>
       </div>
     </div>
   </footer>

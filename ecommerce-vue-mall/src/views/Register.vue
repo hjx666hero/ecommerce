@@ -18,7 +18,7 @@
             <path d="M14 24L21 31L34 18" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </div>
-        <h1 class="brand-title">拼夕夕</h1>
+        <h1 class="brand-title">云创优品</h1>
         <p class="brand-subtitle">创建新账号，开启购物之旅</p>
       </div>
 

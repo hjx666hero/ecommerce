@@ -3,8 +3,8 @@
     <!-- Hero 横幅区 -->
     <section class="page-hero home-hero fade-in-up">
       <div class="hero-content">
-        <h2>✨ 拼夕夕</h2>
-        <p>精选好物 · 品质生活 · 尽在拼夕夕</p>
+        <h2>✨ 云创优品</h2>
+        <p>精选好物 · 品质生活 · 尽在云创优品</p>
         <div class="hero-tags">
           <span>全场包邮</span>
           <span>七天退换</span>

@@ -5,7 +5,7 @@ const routes = [
     path: '/',
     name: 'Home',
     component: () => import('@/views/Home.vue'),
-    meta: { title: '拼夕夕' }
+    meta: { title: '云创优品' }
   },
   {
     path: '/login',
@@ -174,7 +174,7 @@ const router = createRouter({
 
 // 路由守卫
 router.beforeEach((to, from, next) => {
-  document.title = to.meta.title || '拼夕夕'
+  document.title = to.meta.title || '云创优品'
   const token = localStorage.getItem('token')
   if (to.meta.requiresAuth && !token) {
     next({ path: '/login', query: { redirect: to.fullPath } })

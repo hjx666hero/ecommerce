@@ -8,8 +8,8 @@
     <artifactId>ecommerce</artifactId>
     <version>1.0.0</version>
     <packaging>pom</packaging>
-    <name>拼夕夕</name>
-    <description>拼夕夕 - 全栈电商平台（Spring Boot 3 + Vue 3）</description>
+    <name>云创优品</name>
+    <description>云创优品 - 全栈电商平台（Spring Boot 3 + Vue 3）</description>
 
     <modules>
         <module>ecommerce-common</module>

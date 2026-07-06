@@ -27,7 +27,7 @@
           <!-- 空状态欢迎语 -->
           <div v-if="messages.length === 0" class="chat-empty">
             <div class="empty-avatar">🤖</div>
-            <div class="empty-text">您好！我是拼夕夕智能客服助手，请问有什么可以帮您？</div>
+            <div class="empty-text">您好！我是云创优品智能客服助手，请问有什么可以帮您？</div>
             <div class="empty-suggestions">
               <span
                 v-for="item in defaultSuggestions"

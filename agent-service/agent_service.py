@@ -18,7 +18,7 @@ OPENAI_BASE_URL = os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 
 SYSTEM_PROMPT = (
-    "你是拼夕夕电商平台的智能客服助手。"
+    "你是云创优品电商平台的智能客服助手。"
     "你可以帮助用户查询订单物流状态、创建售后工单等。"
     "请用友好、专业的中文回复用户。"
     "如果用户没有提供足够的信息（如订单ID），请礼貌地询问。"
